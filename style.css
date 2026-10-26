@@ -1,136 +1,54 @@
-/* 숫자(0-9)만 고정폭 글꼴로 보이게 한다 */
-@font-face {
-  font-family: "고정폭숫자";
-  src: local("Menlo"), local("Consolas"), local("DejaVu Sans Mono"), local("Courier New");
-  unicode-range: U+0030-0039;
-}
-
-* {
-  box-sizing: border-box;
-}
-
+/* 명세 ② 예시: 청록과 흰색 · 제목은 크게 · 휴대폰에서 누르기 쉬운 버튼 · 줄 사이 넉넉하게 */
 body {
-  max-width: 560px;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  background: #0a0b0d;
-  color: #e6edf0;
-  font-family: "고정폭숫자", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  font-size: 18px;
-  font-variant-numeric: tabular-nums;
+  padding: 24px 16px;
+  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  background: #ffffff;
+  color: #1f2937;
+  line-height: 1.6;
 }
 
-h1 {
+h1 { font-size: 28px; color: #0f766e; }
+
+#item {
   width: 100%;
-  margin: 8px 0 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #2a2f36;
-  color: #ff4fd8;
-  font-size: clamp(28px, 8vw, 40px);
-  font-weight: 800;
-  line-height: 1.1;
-  text-shadow: 0 0 12px rgba(255, 79, 216, 0.6);
-}
-
-input[type="text"] {
-  flex: 1 1 200px;
-  min-width: 0;
+  box-sizing: border-box;
   padding: 12px;
-  background: #101216;
-  color: inherit;
-  border: 1px solid #ff4fd8;
-  border-radius: 6px;
-  font: inherit;
+  margin-bottom: 8px;
+  font-size: 16px;
+  border: 1px solid #99c9c4;
+  border-radius: 8px;
 }
 
-input[type="text"]::placeholder {
-  color: #6b747d;
-}
+button { padding: 12px 20px; border-radius: 8px; }
 
-input[type="text"]:focus {
-  outline: none;
-  border-color: #ff4fd8;
-  box-shadow: 0 0 10px rgba(255, 79, 216, 0.5);
-}
-
-button {
-  padding: 12px 16px;
-  background: transparent;
-  color: #ff4fd8;
-  border: 1px solid #ff4fd8;
-  border-radius: 6px;
-  box-shadow: 0 0 10px rgba(255, 79, 216, 0.35);
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-
-button:hover,
-button:focus-visible {
-  background: rgba(255, 79, 216, 0.28);
-  color: #fff;
-  outline: none;
-}
-
-li button:hover,
-li button:focus-visible {
-  background: rgba(25, 245, 212, 0.2);
-}
-
-ul {
+#add {
   width: 100%;
-  margin: 8px 0 0;
-  padding: 0;
-  list-style: none;
+  font-size: 16px;
+  color: #ffffff;
+  background: #0f766e;
+  border: none;
 }
 
-li {
+#list { list-style: none; padding: 0; }
+
+#list li {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
-  padding: 12px;
-  background: #101216;
-  border: 1px solid #2a2f36;
-  border-radius: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-li span {
-  flex: 1;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-li button {
+#list li button {
+  margin-left: auto;
   padding: 8px 12px;
-  box-shadow: none;
-  color: #9aa4ad;
-  border-color: #2a2f36;
+  color: #0f766e;
+  background: #ffffff;
+  border: 1px solid #0f766e;
 }
 
-li button:hover,
-li button:focus-visible {
-  color: #19f5d4;
-  border-color: #19f5d4;
-}
+#list input[type="checkbox"] { width: 22px; height: 22px; }
 
-input[type="checkbox"] {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  accent-color: #19f5d4;
-}
-
-p {
-  width: 100%;
-  margin: 0;
-  padding: 12px;
-  background: #101216;
-  color: #6b747d;
-  border: 1px dashed #2a2f36;
-  border-radius: 8px;
-}
+li.done { text-decoration: line-through; color: #9ca3af; }
