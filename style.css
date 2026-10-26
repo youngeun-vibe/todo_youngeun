@@ -200,9 +200,19 @@ li button.star.on {
 }
 
 .cal-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
   color: var(--pink);
   font-weight: 700;
+}
+
+.cal-nav {
+  padding: 2px 12px;
+  font-size: 20px;
+  line-height: 1.2;
+  box-shadow: none;
 }
 
 .cal-grid {
@@ -213,16 +223,48 @@ li button.star.on {
   font-size: 15px;
 }
 
-.cal-grid span {
+.cal-grid span,
+.cal-grid button {
   padding: 4px 0;
   border-radius: 4px;
+}
+
+.cal-grid button {
+  position: relative;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid transparent;
+  box-shadow: none;
+  font-weight: 400;
+}
+
+.cal-grid button:hover,
+.cal-grid button:focus-visible {
+  background: rgba(var(--pink-rgb), 0.2);
+  color: var(--text);
+}
+
+.cal-grid .selected {
+  border-color: var(--pink);
+}
+
+.cal-grid .has::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--teal);
 }
 
 .cal-head {
   color: var(--muted);
 }
 
-.cal-grid .today {
+.cal-grid button.today {
   background: var(--pink);
   color: var(--bg);
   font-weight: 700;
