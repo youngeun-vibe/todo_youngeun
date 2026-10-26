@@ -1,6 +1,5 @@
 var SUPABASE_URL = "https://yuzsogcdyuoxaasjnhzj.supabase.co";
 var SUPABASE_KEY = "sb_publishable_VonP9awr3vLQqBNw5LPdxQ_A1Y1BY7V";
-var EXTRA_KEY = "todoExtra";
 var item = document.getElementById("item");
 var addButton = document.getElementById("add");
 var list = document.getElementById("list");
@@ -15,9 +14,6 @@ var selected = dateKey(today);
 var viewYear = today.getFullYear();
 var viewMonth = today.getMonth();
 
-// 표(todos)에는 id, text, done, created_at만 있다.
-// 별표와 날짜는 표에 칸이 없어서 이 브라우저에만 따로 기억한다.
-var extra = loadExtra();
 var todos = [];
 render();
 loadTodos();
@@ -47,34 +43,19 @@ function failed() {
   alert("저장소와 연결하지 못했어요. 인터넷을 확인하고 다시 해 주세요.");
 }
 
-function loadExtra() {
-  try {
-    return JSON.parse(localStorage.getItem(EXTRA_KEY)) || {};
-  } catch (e) {
-    return {};
-  }
-}
-
-function saveExtra() {
-  try {
-    localStorage.setItem(EXTRA_KEY, JSON.stringify(extra));
-  } catch (e) {}
-}
-
 // 표의 한 줄을 화면에서 쓰는 모양으로 바꾼다
 function toTodo(row) {
-  var more = extra[row.id] || {};
   return {
     id: row.id,
     text: row.text,
     done: row.done,
-    star: !!more.star,
-    date: more.date || dateKey(new Date(row.created_at))
+    star: row.star,
+    date: row.due_date
   };
 }
 
 function loadTodos() {
-  api("GET", "?select=id,text,done,created_at&order=id.asc")
+  api("GET", "?select=id,text,done,star,due_date&order=id.asc")
     .then(function (rows) {
       todos = rows.map(toTodo);
       render();
@@ -117,6 +98,10 @@ function render() {
     var text = document.createElement("span");
     text.textContent = todo.text;
 
+    var when = document.createElement("time");
+    when.dateTime = todo.date;
+    when.textContent = Number(todo.date.slice(5, 7)) + "월 " + Number(todo.date.slice(8, 10)) + "일";
+
     var star = document.createElement("button");
     star.type = "button";
     star.className = todo.star ? "star on" : "star";
@@ -124,11 +109,13 @@ function render() {
     star.setAttribute("aria-label", "중요 표시");
     star.setAttribute("aria-pressed", todo.star ? "true" : "false");
     star.addEventListener("click", function () {
-      todos[index].star = !todos[index].star;
-      extra[todo.id] = extra[todo.id] || {};
-      extra[todo.id].star = todos[index].star;
-      saveExtra();
-      render();
+      var on = !todos[index].star;
+      api("PATCH", "?id=eq." + todo.id, { star: on })
+        .then(function () {
+          todos[index].star = on;
+          render();
+        })
+        .catch(failed);
     });
 
     var del = document.createElement("button");
@@ -139,14 +126,12 @@ function render() {
       api("DELETE", "?id=eq." + todo.id)
         .then(function () {
           todos.splice(index, 1);
-          delete extra[todo.id];
-          saveExtra();
           render();
         })
         .catch(failed);
     });
 
-    li.append(check, text, star, del);
+    li.append(check, text, when, star, del);
     list.appendChild(li);
   });
 
@@ -164,12 +149,9 @@ function add() {
     alert("할 일은 200자까지 적을 수 있어요.");
     return;
   }
-  api("POST", "", { text: text })
+  api("POST", "", { text: text, due_date: selected })
     .then(function (rows) {
-      var row = rows[0];
-      extra[row.id] = { date: selected };
-      saveExtra();
-      todos.push(toTodo(row));
+      todos.push(toTodo(rows[0]));
       item.value = "";
       render();
     })
@@ -192,8 +174,6 @@ clearButton.addEventListener("click", function () {
   api("DELETE", "?id=in.(" + ids.join(",") + ")")
     .then(function () {
       todos = todos.filter(function (t) { return ids.indexOf(t.id) === -1; });
-      ids.forEach(function (id) { delete extra[id]; });
-      saveExtra();
       render();
     })
     .catch(failed);

@@ -275,3 +275,9 @@ li button.star.on {
   padding: 8px 12px;
   font-size: 15px;
 }
+
+li time {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
