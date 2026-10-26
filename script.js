@@ -5,6 +5,7 @@ var list = document.getElementById("list");
 var count = document.getElementById("count");
 var empty = document.getElementById("empty");
 var calendar = document.getElementById("calendar");
+var themeButton = document.getElementById("theme");
 
 var todos = load();
 render();
@@ -118,3 +119,20 @@ function renderCalendar() {
   }
   calendar.appendChild(grid);
 }
+
+function applyTheme(light) {
+  document.body.classList.toggle("light", light);
+  themeButton.textContent = light ? "어두운 화면으로" : "밝은 화면으로";
+}
+
+try {
+  applyTheme(localStorage.getItem("theme") === "light");
+} catch (e) {}
+
+themeButton.addEventListener("click", function () {
+  var light = !document.body.classList.contains("light");
+  applyTheme(light);
+  try {
+    localStorage.setItem("theme", light ? "light" : "dark");
+  } catch (e) {}
+});

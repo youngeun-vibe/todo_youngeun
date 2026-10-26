@@ -9,6 +9,46 @@
   box-sizing: border-box;
 }
 
+/* 색 이름표: 어두운 화면이 기본이고, body에 light가 붙으면 밝은 화면이 된다 */
+body {
+  --bg: #0a0b0d;
+  --text: #e6edf0;
+  --card: #101216;
+  --line: #2a2f36;
+  --muted: #6b747d;
+  --sub: #9aa4ad;
+  --pink: #ff4fd8;
+  --teal: #19f5d4;
+  --star: #ffe14d;
+  --pink-rgb: 255, 79, 216;
+  --teal-rgb: 25, 245, 212;
+  --star-rgb: 255, 225, 77;
+  --hover-text: #fff;
+}
+
+body.light {
+  --bg: #f4f5f7;
+  --text: #14171a;
+  --card: #fff;
+  --line: #d3d8de;
+  --muted: #5c6670;
+  --sub: #4a535c;
+  --pink: #c4128f;
+  --teal: #00806f;
+  --star: #e0a800;
+  --pink-rgb: 196, 18, 143;
+  --teal-rgb: 0, 128, 111;
+  --star-rgb: 224, 168, 0;
+  --hover-text: #14171a;
+}
+
+body.light h1,
+body.light button,
+body.light li button.star.on {
+  text-shadow: none;
+  box-shadow: none;
+}
+
 body {
   max-width: 560px;
   margin: 0 auto;
@@ -16,8 +56,8 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  background: #0a0b0d;
-  color: #e6edf0;
+  background: var(--bg);
+  color: var(--text);
   font-family: "고정폭숫자", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   font-size: 18px;
   font-variant-numeric: tabular-nums;
@@ -27,42 +67,42 @@ h1 {
   width: 100%;
   margin: 8px 0 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #2a2f36;
-  color: #ff4fd8;
+  border-bottom: 1px solid var(--line);
+  color: var(--pink);
   font-size: clamp(28px, 8vw, 40px);
   font-weight: 800;
   line-height: 1.1;
-  text-shadow: 0 0 12px rgba(255, 79, 216, 0.6);
+  text-shadow: 0 0 12px rgba(var(--pink-rgb), 0.6);
 }
 
 input[type="text"] {
   flex: 1 1 200px;
   min-width: 0;
   padding: 12px;
-  background: #101216;
+  background: var(--card);
   color: inherit;
-  border: 1px solid #ff4fd8;
+  border: 1px solid var(--pink);
   border-radius: 6px;
   font: inherit;
 }
 
 input[type="text"]::placeholder {
-  color: #6b747d;
+  color: var(--muted);
 }
 
 input[type="text"]:focus {
   outline: none;
-  border-color: #ff4fd8;
-  box-shadow: 0 0 10px rgba(255, 79, 216, 0.5);
+  border-color: var(--pink);
+  box-shadow: 0 0 10px rgba(var(--pink-rgb), 0.5);
 }
 
 button {
   padding: 12px 16px;
   background: transparent;
-  color: #ff4fd8;
-  border: 1px solid #ff4fd8;
+  color: var(--pink);
+  border: 1px solid var(--pink);
   border-radius: 6px;
-  box-shadow: 0 0 10px rgba(255, 79, 216, 0.35);
+  box-shadow: 0 0 10px rgba(var(--pink-rgb), 0.35);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -71,14 +111,14 @@ button {
 
 button:hover,
 button:focus-visible {
-  background: rgba(255, 79, 216, 0.28);
-  color: #fff;
+  background: rgba(var(--pink-rgb), 0.28);
+  color: var(--hover-text);
   outline: none;
 }
 
 li button:hover,
 li button:focus-visible {
-  background: rgba(25, 245, 212, 0.2);
+  background: rgba(var(--teal-rgb), 0.2);
 }
 
 ul {
@@ -94,8 +134,8 @@ li {
   gap: 12px;
   margin-bottom: 12px;
   padding: 12px;
-  background: #101216;
-  border: 1px solid #2a2f36;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 8px;
 }
 
@@ -108,60 +148,60 @@ li span {
 li button {
   padding: 8px 12px;
   box-shadow: none;
-  color: #9aa4ad;
-  border-color: #2a2f36;
+  color: var(--sub);
+  border-color: var(--line);
 }
 
 li button:hover,
 li button:focus-visible {
-  color: #19f5d4;
-  border-color: #19f5d4;
+  color: var(--teal);
+  border-color: var(--teal);
 }
 
 input[type="checkbox"] {
   width: 24px;
   height: 24px;
   flex-shrink: 0;
-  accent-color: #19f5d4;
+  accent-color: var(--teal);
 }
 
 p {
   width: 100%;
   margin: 0;
   padding: 12px;
-  background: #101216;
-  color: #6b747d;
-  border: 1px dashed #2a2f36;
+  background: var(--card);
+  color: var(--muted);
+  border: 1px dashed var(--line);
   border-radius: 8px;
 }
 
 li.done span {
   text-decoration: line-through;
-  color: #6b747d;
+  color: var(--muted);
 }
 
 li button.star {
   padding: 8px 10px;
-  color: #6b747d;
+  color: var(--muted);
 }
 
 li button.star.on {
-  color: #ffe14d;
-  border-color: #ffe14d;
-  text-shadow: 0 0 8px rgba(255, 225, 77, 0.7);
+  color: var(--star);
+  border-color: var(--star);
+  text-shadow: 0 0 8px rgba(var(--star-rgb), 0.7);
 }
 
 #calendar {
   width: 100%;
   padding: 12px;
-  background: #101216;
-  border: 1px solid #2a2f36;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 8px;
 }
 
 .cal-title {
   margin-bottom: 8px;
-  color: #ff4fd8;
+  color: var(--pink);
   font-weight: 700;
 }
 
@@ -179,11 +219,17 @@ li button.star.on {
 }
 
 .cal-head {
-  color: #6b747d;
+  color: var(--muted);
 }
 
 .cal-grid .today {
-  background: #ff4fd8;
-  color: #0a0b0d;
+  background: var(--pink);
+  color: var(--bg);
   font-weight: 700;
+}
+
+#theme {
+  margin-left: auto;
+  padding: 8px 12px;
+  font-size: 15px;
 }
