@@ -1,3 +1,10 @@
+/* 숫자(0-9)만 고정폭 글꼴로 보이게 한다 */
+@font-face {
+  font-family: "고정폭숫자";
+  src: local("Menlo"), local("Consolas"), local("DejaVu Sans Mono"), local("Courier New");
+  unicode-range: U+0030-0039;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -9,54 +16,62 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  background: #ffe14d;
-  color: #000;
-  font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  background: #0a0b0d;
+  color: #e6edf0;
+  font-family: "고정폭숫자", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   font-size: 18px;
+  font-variant-numeric: tabular-nums;
 }
 
 h1 {
   width: 100%;
   margin: 8px 0 16px;
-  padding: 12px 16px;
-  background: #ff6fb5;
-  border: 2px solid #000;
-  box-shadow: 6px 6px 0 #000;
-  font-size: clamp(32px, 9vw, 48px);
-  font-weight: 900;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #2a2f36;
+  color: #19f5d4;
+  font-size: clamp(28px, 8vw, 40px);
+  font-weight: 800;
   line-height: 1.1;
-  transform: rotate(-2deg);
+  text-shadow: 0 0 12px rgba(25, 245, 212, 0.6);
 }
 
 input[type="text"] {
   flex: 1 1 200px;
   min-width: 0;
   padding: 12px;
-  background: #fff;
-  border: 2px solid #000;
-  box-shadow: 4px 4px 0 #000;
+  background: #101216;
+  color: inherit;
+  border: 1px solid #2a2f36;
+  border-radius: 6px;
   font: inherit;
 }
 
+input[type="text"]::placeholder {
+  color: #6b747d;
+}
+
 input[type="text"]:focus {
-  outline: 3px solid #3d7bff;
-  outline-offset: 2px;
+  outline: none;
+  border-color: #19f5d4;
+  box-shadow: 0 0 10px rgba(25, 245, 212, 0.5);
 }
 
 button {
   padding: 12px 16px;
-  background: #3d7bff;
-  color: #fff;
-  border: 2px solid #000;
-  box-shadow: 4px 4px 0 #000;
+  background: transparent;
+  color: #19f5d4;
+  border: 1px solid #19f5d4;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(25, 245, 212, 0.35);
   font: inherit;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 }
 
-button:active {
-  transform: translate(4px, 4px);
-  box-shadow: 0 0 0 #000;
+button:hover,
+button:focus-visible {
+  background: rgba(25, 245, 212, 0.12);
+  outline: none;
 }
 
 ul {
@@ -70,11 +85,11 @@ li {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   padding: 12px;
-  background: #fff;
-  border: 2px solid #000;
-  box-shadow: 6px 6px 0 #000;
+  background: #101216;
+  border: 1px solid #2a2f36;
+  border-radius: 8px;
 }
 
 li span {
@@ -85,24 +100,30 @@ li span {
 
 li button {
   padding: 8px 12px;
-  background: #ff6fb5;
-  color: #000;
+  box-shadow: none;
+  color: #9aa4ad;
+  border-color: #2a2f36;
+}
+
+li button:hover,
+li button:focus-visible {
+  color: #19f5d4;
+  border-color: #19f5d4;
 }
 
 input[type="checkbox"] {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
-  accent-color: #3d7bff;
+  accent-color: #19f5d4;
 }
 
 p {
   width: 100%;
   margin: 0;
   padding: 12px;
-  background: #3d7bff;
-  color: #fff;
-  border: 2px solid #000;
-  box-shadow: 6px 6px 0 #000;
-  font-weight: 900;
+  background: #101216;
+  color: #6b747d;
+  border: 1px dashed #2a2f36;
+  border-radius: 8px;
 }
