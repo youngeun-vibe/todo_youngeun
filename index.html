@@ -9,19 +9,15 @@
 <body>
   <h1>영은의 할 일</h1>
 
-  <input type="text" placeholder="할 일을 적어 주세요">
-  <button type="button">추가</button>
+  <input id="item" type="text" placeholder="할 일을 적어 주세요">
+  <button id="add" type="button">추가</button>
 
-  <ul>
-    <li>
-      <input type="checkbox">
-      <span>예시 할 일</span>
-      <button type="button">삭제</button>
-    </li>
-  </ul>
+  <ul id="list"></ul>
 
-  <p>남은 개수: <span id="count">1</span></p>
+  <p>남은 개수: <span id="count">0</span></p>
 
-  <p>아직 할 일이 없어요</p>
+  <p id="empty">아직 할 일이 없어요</p>
+
+  <script src="script.js"></script>
 </body>
 </html>
