@@ -139,3 +139,51 @@ li.done span {
   text-decoration: line-through;
   color: #6b747d;
 }
+
+li button.star {
+  padding: 8px 10px;
+  color: #6b747d;
+}
+
+li button.star.on {
+  color: #ffe14d;
+  border-color: #ffe14d;
+  text-shadow: 0 0 8px rgba(255, 225, 77, 0.7);
+}
+
+#calendar {
+  width: 100%;
+  padding: 12px;
+  background: #101216;
+  border: 1px solid #2a2f36;
+  border-radius: 8px;
+}
+
+.cal-title {
+  margin-bottom: 8px;
+  color: #ff4fd8;
+  font-weight: 700;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.cal-grid span {
+  padding: 4px 0;
+  border-radius: 4px;
+}
+
+.cal-head {
+  color: #6b747d;
+}
+
+.cal-grid .today {
+  background: #ff4fd8;
+  color: #0a0b0d;
+  font-weight: 700;
+}

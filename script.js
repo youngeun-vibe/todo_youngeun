@@ -4,9 +4,11 @@ var addButton = document.getElementById("add");
 var list = document.getElementById("list");
 var count = document.getElementById("count");
 var empty = document.getElementById("empty");
+var calendar = document.getElementById("calendar");
 
 var todos = load();
 render();
+renderCalendar();
 
 function load() {
   try {
@@ -25,7 +27,11 @@ function save() {
 
 function render() {
   list.textContent = "";
-  todos.forEach(function (todo, index) {
+  var order = todos.map(function (t, i) { return i; }).sort(function (a, b) {
+    return (todos[b].star ? 1 : 0) - (todos[a].star ? 1 : 0) || a - b;
+  });
+  order.forEach(function (index) {
+    var todo = todos[index];
     var li = document.createElement("li");
     if (todo.done) li.className = "done";
 
@@ -41,6 +47,18 @@ function render() {
     var text = document.createElement("span");
     text.textContent = todo.text;
 
+    var star = document.createElement("button");
+    star.type = "button";
+    star.className = todo.star ? "star on" : "star";
+    star.textContent = "★";
+    star.setAttribute("aria-label", "중요 표시");
+    star.setAttribute("aria-pressed", todo.star ? "true" : "false");
+    star.addEventListener("click", function () {
+      todos[index].star = !todos[index].star;
+      save();
+      render();
+    });
+
     var del = document.createElement("button");
     del.type = "button";
     del.textContent = "삭제";
@@ -50,7 +68,7 @@ function render() {
       render();
     });
 
-    li.append(check, text, del);
+    li.append(check, text, star, del);
     list.appendChild(li);
   });
 
@@ -66,3 +84,37 @@ addButton.addEventListener("click", function () {
   save();
   render();
 });
+
+function renderCalendar() {
+  var now = new Date();
+  var year = now.getFullYear();
+  var month = now.getMonth();
+  var first = new Date(year, month, 1).getDay();
+  var days = new Date(year, month + 1, 0).getDate();
+
+  calendar.textContent = "";
+
+  var title = document.createElement("div");
+  title.className = "cal-title";
+  title.textContent = year + "년 " + (month + 1) + "월";
+  calendar.appendChild(title);
+
+  var grid = document.createElement("div");
+  grid.className = "cal-grid";
+  ["일", "월", "화", "수", "목", "금", "토"].forEach(function (name) {
+    var head = document.createElement("span");
+    head.className = "cal-head";
+    head.textContent = name;
+    grid.appendChild(head);
+  });
+  for (var i = 0; i < first; i++) {
+    grid.appendChild(document.createElement("span"));
+  }
+  for (var d = 1; d <= days; d++) {
+    var cell = document.createElement("span");
+    cell.textContent = d;
+    if (d === now.getDate()) cell.className = "today";
+    grid.appendChild(cell);
+  }
+  calendar.appendChild(grid);
+}
