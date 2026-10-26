@@ -1,6 +1,7 @@
 var SUPABASE_URL = "https://yuzsogcdyuoxaasjnhzj.supabase.co";
 var SUPABASE_KEY = "sb_publishable_VonP9awr3vLQqBNw5LPdxQ_A1Y1BY7V";
 var BUCKET = "attachments";
+var TRASH_IMAGE = SUPABASE_URL + "/storage/v1/object/public/trash/trashcan.png";
 var MAX_FILE = 10 * 1024 * 1024;
 var FILE_TYPES = ["png", "jpg", "jpeg", "webp", "gif", "pdf", "doc", "docx", "xls", "xlsx", "csv", "ppt", "pptx", "txt"];
 var item = document.getElementById("item");
@@ -154,7 +155,15 @@ function render() {
 
     var del = document.createElement("button");
     del.type = "button";
-    del.textContent = "삭제";
+    del.setAttribute("aria-label", "삭제");
+    var trash = document.createElement("img");
+    trash.src = TRASH_IMAGE;
+    trash.alt = "";
+    // 그림을 못 불러오면 글자로 대신한다
+    trash.addEventListener("error", function () {
+      del.textContent = "삭제";
+    });
+    del.appendChild(trash);
     del.addEventListener("click", function () {
       if (!confirm("정말 지울까요?")) return;
       api("DELETE", "?id=eq." + todo.id)

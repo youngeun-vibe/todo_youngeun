@@ -321,3 +321,10 @@ li a.file {
   font-size: 15px;
   overflow-wrap: anywhere;
 }
+
+li button img {
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
