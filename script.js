@@ -1,4 +1,6 @@
-var KEY = "todos";
+var SUPABASE_URL = "https://yuzsogcdyuoxaasjnhzj.supabase.co";
+var SUPABASE_KEY = "sb_publishable_VonP9awr3vLQqBNw5LPdxQ_A1Y1BY7V";
+var EXTRA_KEY = "todoExtra";
 var item = document.getElementById("item");
 var addButton = document.getElementById("add");
 var list = document.getElementById("list");
@@ -13,8 +15,12 @@ var selected = dateKey(today);
 var viewYear = today.getFullYear();
 var viewMonth = today.getMonth();
 
-var todos = load();
+// 표(todos)에는 id, text, done, created_at만 있다.
+// 별표와 날짜는 표에 칸이 없어서 이 브라우저에만 따로 기억한다.
+var extra = loadExtra();
+var todos = [];
 render();
+loadTodos();
 
 function dateKey(date) {
   var m = String(date.getMonth() + 1).padStart(2, "0");
@@ -22,24 +28,58 @@ function dateKey(date) {
   return date.getFullYear() + "-" + m + "-" + d;
 }
 
-function load() {
+function api(method, query, body) {
+  var options = {
+    method: method,
+    headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" }
+  };
+  if (body) {
+    options.body = JSON.stringify(body);
+    options.headers.Prefer = "return=representation";
+  }
+  return fetch(SUPABASE_URL + "/rest/v1/todos" + query, options).then(function (res) {
+    if (!res.ok) throw new Error("저장소 응답 " + res.status);
+    return res.status === 204 ? null : res.json();
+  });
+}
+
+function failed() {
+  alert("저장소와 연결하지 못했어요. 인터넷을 확인하고 다시 해 주세요.");
+}
+
+function loadExtra() {
   try {
-    var saved = JSON.parse(localStorage.getItem(KEY));
-    if (!Array.isArray(saved)) return [];
-    // 날짜가 없던 옛 할 일은 오늘 할 일로 본다
-    saved.forEach(function (t) {
-      if (!t.date) t.date = dateKey(new Date());
-    });
-    return saved;
+    return JSON.parse(localStorage.getItem(EXTRA_KEY)) || {};
   } catch (e) {
-    return [];
+    return {};
   }
 }
 
-function save() {
+function saveExtra() {
   try {
-    localStorage.setItem(KEY, JSON.stringify(todos));
+    localStorage.setItem(EXTRA_KEY, JSON.stringify(extra));
   } catch (e) {}
+}
+
+// 표의 한 줄을 화면에서 쓰는 모양으로 바꾼다
+function toTodo(row) {
+  var more = extra[row.id] || {};
+  return {
+    id: row.id,
+    text: row.text,
+    done: row.done,
+    star: !!more.star,
+    date: more.date || dateKey(new Date(row.created_at))
+  };
+}
+
+function loadTodos() {
+  api("GET", "?select=id,text,done,created_at&order=id.asc")
+    .then(function (rows) {
+      todos = rows.map(toTodo);
+      render();
+    })
+    .catch(failed);
 }
 
 function render() {
@@ -62,9 +102,16 @@ function render() {
     check.type = "checkbox";
     check.checked = todo.done;
     check.addEventListener("change", function () {
-      todos[index].done = check.checked;
-      save();
-      render();
+      var done = check.checked;
+      api("PATCH", "?id=eq." + todo.id, { done: done })
+        .then(function () {
+          todos[index].done = done;
+          render();
+        })
+        .catch(function () {
+          failed();
+          render();
+        });
     });
 
     var text = document.createElement("span");
@@ -78,7 +125,9 @@ function render() {
     star.setAttribute("aria-pressed", todo.star ? "true" : "false");
     star.addEventListener("click", function () {
       todos[index].star = !todos[index].star;
-      save();
+      extra[todo.id] = extra[todo.id] || {};
+      extra[todo.id].star = todos[index].star;
+      saveExtra();
       render();
     });
 
@@ -87,9 +136,14 @@ function render() {
     del.textContent = "삭제";
     del.addEventListener("click", function () {
       if (!confirm("정말 지울까요?")) return;
-      todos.splice(index, 1);
-      save();
-      render();
+      api("DELETE", "?id=eq." + todo.id)
+        .then(function () {
+          todos.splice(index, 1);
+          delete extra[todo.id];
+          saveExtra();
+          render();
+        })
+        .catch(failed);
     });
 
     li.append(check, text, star, del);
@@ -106,10 +160,20 @@ function render() {
 function add() {
   var text = item.value.trim();
   if (text === "") return;
-  todos.push({ text: text, done: false, star: false, date: selected });
-  item.value = "";
-  save();
-  render();
+  if (text.length > 200) {
+    alert("할 일은 200자까지 적을 수 있어요.");
+    return;
+  }
+  api("POST", "", { text: text })
+    .then(function (rows) {
+      var row = rows[0];
+      extra[row.id] = { date: selected };
+      saveExtra();
+      todos.push(toTodo(row));
+      item.value = "";
+      render();
+    })
+    .catch(failed);
 }
 
 addButton.addEventListener("click", add);
@@ -119,12 +183,20 @@ item.addEventListener("keydown", function (e) {
 });
 
 clearButton.addEventListener("click", function () {
-  if (!confirm("완료한 할 일을 모두 지울까요?")) return;
-  todos = todos.filter(function (t) {
-    return !(t.date === selected && t.done);
+  var gone = todos.filter(function (t) {
+    return t.date === selected && t.done;
   });
-  save();
-  render();
+  if (gone.length === 0) return;
+  if (!confirm("완료한 할 일을 모두 지울까요?")) return;
+  var ids = gone.map(function (t) { return t.id; });
+  api("DELETE", "?id=in.(" + ids.join(",") + ")")
+    .then(function () {
+      todos = todos.filter(function (t) { return ids.indexOf(t.id) === -1; });
+      ids.forEach(function (id) { delete extra[id]; });
+      saveExtra();
+      render();
+    })
+    .catch(failed);
 });
 
 function renderCalendar() {
