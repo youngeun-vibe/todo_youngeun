@@ -66,17 +66,19 @@ button {
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 button:hover,
 button:focus-visible {
-  background: rgba(255, 79, 216, 0.12);
+  background: rgba(255, 79, 216, 0.28);
+  color: #fff;
   outline: none;
 }
 
 li button:hover,
 li button:focus-visible {
-  background: rgba(25, 245, 212, 0.12);
+  background: rgba(25, 245, 212, 0.2);
 }
 
 ul {
