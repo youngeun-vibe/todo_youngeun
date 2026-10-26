@@ -281,3 +281,11 @@ li time {
   color: var(--muted);
   font-size: 14px;
 }
+
+h1 img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+  border-radius: 12px;
+}
