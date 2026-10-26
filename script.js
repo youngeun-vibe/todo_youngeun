@@ -1,7 +1,11 @@
 var SUPABASE_URL = "https://yuzsogcdyuoxaasjnhzj.supabase.co";
 var SUPABASE_KEY = "sb_publishable_VonP9awr3vLQqBNw5LPdxQ_A1Y1BY7V";
+var BUCKET = "attachments";
+var MAX_FILE = 10 * 1024 * 1024;
+var FILE_TYPES = ["png", "jpg", "jpeg", "webp", "gif", "pdf", "doc", "docx", "xls", "xlsx", "csv", "ppt", "pptx", "txt"];
 var item = document.getElementById("item");
 var addButton = document.getElementById("add");
+var fileInput = document.getElementById("file");
 var list = document.getElementById("list");
 var clearButton = document.getElementById("clear");
 var count = document.getElementById("count");
@@ -15,6 +19,7 @@ var viewYear = today.getFullYear();
 var viewMonth = today.getMonth();
 
 var todos = [];
+var busy = false;
 render();
 loadTodos();
 
@@ -39,6 +44,33 @@ function api(method, query, body) {
   });
 }
 
+function fileUrl(path) {
+  return SUPABASE_URL + "/storage/v1/object/public/" + BUCKET + "/" + path;
+}
+
+function uploadFile(file) {
+  var ext = file.name.split(".").pop().toLowerCase();
+  var path = Date.now() + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
+  return fetch(SUPABASE_URL + "/storage/v1/object/" + BUCKET + "/" + path, {
+    method: "POST",
+    headers: { apikey: SUPABASE_KEY, "Content-Type": file.type || "application/octet-stream" },
+    body: file
+  }).then(function (res) {
+    if (!res.ok) throw new Error("파일 올리기 " + res.status);
+    return path;
+  });
+}
+
+// 지운 할 일의 파일을 보관함에서도 지운다. 실패해도 할 일 지우기는 막지 않는다.
+function removeFiles(paths) {
+  if (paths.length === 0) return;
+  fetch(SUPABASE_URL + "/storage/v1/object/" + BUCKET, {
+    method: "DELETE",
+    headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ prefixes: paths })
+  }).catch(function () {});
+}
+
 function failed() {
   alert("저장소와 연결하지 못했어요. 인터넷을 확인하고 다시 해 주세요.");
 }
@@ -50,12 +82,14 @@ function toTodo(row) {
     text: row.text,
     done: row.done,
     star: row.star,
-    date: row.due_date
+    date: row.due_date,
+    filePath: row.file_path,
+    fileName: row.file_name
   };
 }
 
 function loadTodos() {
-  api("GET", "?select=id,text,done,star,due_date&order=id.asc")
+  api("GET", "?select=id,text,done,star,due_date,file_path,file_name&order=id.asc")
     .then(function (rows) {
       todos = rows.map(toTodo);
       render();
@@ -126,12 +160,22 @@ function render() {
       api("DELETE", "?id=eq." + todo.id)
         .then(function () {
           todos.splice(index, 1);
+          removeFiles(todo.filePath ? [todo.filePath] : []);
           render();
         })
         .catch(failed);
     });
 
     li.append(check, text, when, star, del);
+    if (todo.filePath) {
+      var link = document.createElement("a");
+      link.className = "file";
+      link.href = fileUrl(todo.filePath);
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = todo.fileName || "첨부 파일";
+      li.appendChild(link);
+    }
     list.appendChild(li);
   });
 
@@ -149,13 +193,48 @@ function add() {
     alert("할 일은 200자까지 적을 수 있어요.");
     return;
   }
-  api("POST", "", { text: text, due_date: selected })
+  var file = fileInput.files[0];
+  if (file) {
+    var ext = file.name.split(".").pop().toLowerCase();
+    if (FILE_TYPES.indexOf(ext) === -1) {
+      alert("이 종류의 파일은 올릴 수 없어요. 그림, PDF, 워드, 엑셀, 파워포인트, 글자 파일만 돼요.");
+      return;
+    }
+    if (file.size > MAX_FILE) {
+      alert("파일은 10MB까지 올릴 수 있어요.");
+      return;
+    }
+  }
+  if (busy) return;
+  busy = true;
+  addButton.disabled = true;
+
+  var uploaded = null;
+  (file ? uploadFile(file) : Promise.resolve(null))
+    .then(function (path) {
+      uploaded = path;
+      var row = { text: text, due_date: selected };
+      if (path) {
+        row.file_path = path;
+        row.file_name = file.name;
+      }
+      return api("POST", "", row);
+    })
     .then(function (rows) {
       todos.push(toTodo(rows[0]));
       item.value = "";
+      fileInput.value = "";
       render();
     })
-    .catch(failed);
+    .catch(function () {
+      // 할 일을 저장하지 못했으면 방금 올린 파일도 지운다
+      if (uploaded) removeFiles([uploaded]);
+      failed();
+    })
+    .then(function () {
+      busy = false;
+      addButton.disabled = false;
+    });
 }
 
 addButton.addEventListener("click", add);
@@ -174,6 +253,7 @@ clearButton.addEventListener("click", function () {
   api("DELETE", "?id=in.(" + ids.join(",") + ")")
     .then(function () {
       todos = todos.filter(function (t) { return ids.indexOf(t.id) === -1; });
+      removeFiles(gone.filter(function (t) { return t.filePath; }).map(function (t) { return t.filePath; }));
       render();
     })
     .catch(failed);
